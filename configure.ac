@@ -1,0 +1,5 @@
+AC_INIT([sim], 0.1)
+AM_INIT_AUTOMAKE
+LT_INIT
+AC_PROG_CC
+AC_OUTPUT(Makefile src/Makefile)
