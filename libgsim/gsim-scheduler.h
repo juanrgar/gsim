@@ -85,7 +85,7 @@ guint64            gsim_scheduler_get_sim_time  (GsimScheduler    *scheduler);
 GsimSchedulerState gsim_scheduler_get_state     (GsimScheduler    *scheduler);
 
 gboolean           gsim_scheduler_run           (GsimScheduler    *scheduler);
-gboolean           gsim_scheduler_pause         (GsimScheduler    *scheduler);
+gboolean           gsim_scheduler_hold          (GsimScheduler    *scheduler);
 
 guint64            gsim_scheduler_add_event     (GsimScheduler    *scheduler,
                                                  GsimSchedulerFunc func,

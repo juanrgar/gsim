@@ -21,7 +21,7 @@ G_DEFINE_TYPE (GsimScheduler, gsim_scheduler, G_TYPE_OBJECT);
 
 #define SCHEDULER_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), GSIM_TYPE_SCHEDULER, GsimSchedulerPrivate))
 
-typedef struct _GsimSchedulerPrivate
+struct _GsimSchedulerPrivate
 {
     guint64 sim_time;
     GsimSchedulerState state;
@@ -29,12 +29,14 @@ typedef struct _GsimSchedulerPrivate
     guint64 tolerance;
     guint64 cycle;
 
+    GSList *events;
+
     GThread *sched_thread;
     GMutex sched_mutex;
     GCond sched_cond;
 
     gboolean do_exit : 1;
-} GsimSchedulerPrivate;
+};
 
 
 enum {
@@ -43,6 +45,15 @@ enum {
     PROP_TOLERANCE,
     PROP_CYCLE,
     PROP_STATE
+};
+
+typedef struct _GsimSchedulerEvent GsimSchedulerEvent;
+
+struct _GsimSchedulerEvent
+{
+    guint64 delay;
+    guint64 cycle;
+    gint32 repeats;
 };
 
 static void
@@ -208,6 +219,7 @@ guint64            gsim_scheduler_get_sim_time  (GsimScheduler    *scheduler);
 
 GsimSchedulerState gsim_scheduler_get_state     (GsimScheduler    *scheduler);
 */
+
 gboolean
 gsim_scheduler_run (GsimScheduler *scheduler)
 {
@@ -218,8 +230,8 @@ gsim_scheduler_run (GsimScheduler *scheduler)
     {
         g_debug ("Transition to RUN");
 
-        priv->state = GSIM_SCHEDULER_STATE_RUN;
         g_mutex_lock (&priv->sched_mutex);
+        priv->state = GSIM_SCHEDULER_STATE_RUN;
         g_cond_signal (&priv->sched_cond);
         g_mutex_unlock (&priv->sched_mutex);
         ret = TRUE;
@@ -227,9 +239,28 @@ gsim_scheduler_run (GsimScheduler *scheduler)
 
     return ret;
 }
-/*
-gboolean           gsim_scheduler_pause         (GsimScheduler    *scheduler);
 
+gboolean
+gsim_scheduler_hold (GsimScheduler *scheduler)
+{
+    gboolean ret = FALSE;
+    GsimSchedulerPrivate *priv = SCHEDULER_PRIVATE (scheduler);
+
+    if (priv->state == GSIM_SCHEDULER_STATE_RUN)
+    {
+        g_debug ("Transition to HOLD");
+
+        g_mutex_lock (&priv->sched_mutex);
+        priv->state = GSIM_SCHEDULER_STATE_HOLD;
+        g_mutex_unlock (&priv->sched_mutex);
+
+        ret = TRUE;
+    }
+
+    return ret;
+}
+
+/*
 guint64            gsim_scheduler_add_event     (GsimScheduler    *scheduler,
                                                  GsimSchedulerFunc func,
                                                  const gchar      *name,

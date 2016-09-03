@@ -35,6 +35,18 @@ int main (int argc, char *argv[])
 
     g_message ("Wait finished");
 
+    gsim_scheduler_hold (scheduler);
+
+    g_usleep (10 * 1.0e6);
+
+    gsim_scheduler_run (scheduler);
+
+    g_message ("Wait started");
+
+    g_usleep (10 * 1.0e6);
+
+    g_message ("Wait finished");
+
     g_object_unref (scheduler);
 
     g_message ("Object unrefed");
