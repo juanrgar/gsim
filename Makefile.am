@@ -1,1 +1,3 @@
-SUBDIRS = src
+SUBDIRS = libgsim tests
+
+EXTRA_DIST = README AUTHORS COPYING
